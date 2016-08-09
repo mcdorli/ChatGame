@@ -11,6 +11,7 @@ module.exports = function() {
             this.target = null;
             this.state = 0;
             this.roomId = roomId;
+            this.changed = false;
         }
         
         update(time, users, rooms) {
@@ -70,13 +71,19 @@ module.exports = function() {
                             break;
                         }
                     }
+                    this.changed = true;
                 }
             } else {
+                if (this.state != 0)
+                    this.changed = true;
                 this.state = 0;
             }
             
-            for (var i = 0; i < users.length; i++) {
-                users[i].socket.emit("update", {id: this.id, pos: this.pos, state: this.state, roomId: this.roomId});
+            if (this.changed) {
+                for (var i = 0; i < users.length; i++) {
+                    users[i].socket.emit("update", {id: this.id, pos: this.pos, state: this.state, roomId: this.roomId});
+                }
+                this.changed = false;
             }
         }
         

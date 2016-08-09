@@ -165,7 +165,7 @@ var game = (function() {
     }
     
     function drawRoom(room) {
-        ctx.drawImage(images[room.image], 0, 0);
+        ctx.drawImage(images[room.image], 0, 0, c.width, c.height);
         ctx.strokeStyle = "green";
         ctx.strokeRect(room.walkArea.x, room.walkArea.y, room.walkArea.width, room.walkArea.height);
         ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
@@ -186,5 +186,11 @@ var game = (function() {
         }
     }
     
-    onload = main;
+    main();
+    
+    return {
+        createModalPanel = function (text) {
+            alert(text);
+        }
+    }
 })();

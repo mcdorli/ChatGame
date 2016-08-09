@@ -1,0 +1,9 @@
+{
+    "events": {
+        "testEvent": {
+            "action": "openModal",
+            "type": "text",
+            "text": "Test event"
+        }
+    }
+}
