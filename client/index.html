@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            ChatGame
+        </title>
+        <link rel="shortcut icon" type="image/png" href="/favicon.png"/>
+        <script type="text/javascript" src="socket.io.js"></script>
+        <script type="text/javascript" src="main.js" defer="defer"></script>
+        <script type="text/javascript" src="Player.js"></script>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+    <body>
+        <input type="text" class="input_field" id="address" autocomplete="on" placeholder="Enter the server address (example.com:9999 / 192.168.x.xxx:yyyy)" />
+        <input type="text" class="input_field" id="name" placeholder="Enter your name..." maxlength="25" />
+        <input type="button" class="input_button" id="name_send" value="Send" />
+        <center>
+            <canvas id="canvas"></canvas>
+        </center>
+        <input type="text" class="input_field" id="chat" placeholder="Enter a message..." maxlength="75"/>
+        <input type="button" class="input_button" id="chat_send" value="Send" />
+    </body>
+</html>

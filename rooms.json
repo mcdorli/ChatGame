@@ -1,0 +1,96 @@
+{
+    "rooms": [
+        {
+            "name": "testRoom",
+            "image": "testroom.png",
+            "walkArea": {
+                "x": 100,
+                "y": 100,
+                "width": 824,
+                "height": 568
+            },
+            "obstacles": [
+                {
+                    "x": 200,
+                    "y": 150,
+                    "width": 50,
+                    "height": 50
+                },
+                {
+                    "x": 350,
+                    "y": 400,
+                    "width": 20,
+                    "height": 20
+                }
+            ],
+            "teleports": [
+                {
+                    "x": 874,
+                    "y": 334,
+                    "width": 50,
+                    "height": 100,
+                    "to": {
+                        "id": 1,
+                        "x": 150,
+                        "y": 350
+                    }
+                }
+            ],
+            "events": [
+                {
+                    "name": "testEvent",
+                    "x": 500,
+                    "y": 400,
+                    "width": 50,
+                    "height": 50
+                }
+            ]
+        },
+        {
+            "name": "testRoom2",
+            "image": "testroom2.png",
+            "walkArea": {
+                "x": 100,
+                "y": 100,
+                "width": 824,
+                "height": 568
+            },
+            "obstacles": [
+                {
+                    "x": 200,
+                    "y": 50,
+                    "width": 40,
+                    "height": 50
+                },
+                {
+                    "x": 600,
+                    "y": 500,
+                    "width": 70,
+                    "height": 70
+                }
+            ],
+            "teleports": [
+                {
+                    "x": 100,
+                    "y": 334,
+                    "width": 50,
+                    "height": 100,
+                    "to": {
+                        "id": 0,
+                        "x": 500,
+                        "y": 383
+                    }
+                }
+            ],
+            "events": [
+                {
+                    "name": "testEvent",
+                    "x": 200,
+                    "y": 200,
+                    "width": 10,
+                    "height": 20
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "browser_chat_game",
+  "version": "0.0.0",
+  "description": "A browser game",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "game",
+    "browser",
+    "chat",
+    "club"
+  ],
+  "author": "Csala Bálint",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.0",
+    "socket.io": "^1.4.8"
+  }
+}

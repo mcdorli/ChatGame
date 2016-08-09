@@ -1,0 +1,51 @@
+body {
+    margin-top: 50px;
+}
+
+canvas {
+    border: 1px solid black;
+}
+
+.input_field {
+    width: 50%;
+    height: 3em;
+    padding-left: 0.5em;
+    box-sizing: border-box;
+}
+
+.input_button {
+    width: 100px;
+    height: 3em;
+}
+
+#address {
+    position: absolute;
+    top: 25%;
+    left: 25%;
+}
+
+#name {
+    position: absolute;
+    top: calc(25% + 3em + 5px);
+    left: 25%;
+}
+
+#name_send {
+    position: absolute;
+    top: calc(25% + 6em + 10px);
+    left: calc(50% - 50px);
+}
+
+#chat {
+    position: absolute;
+    bottom: 20px;
+    left: calc(25% - 50px);
+    visibility: hidden;
+}
+
+#chat_send {
+    position: absolute;
+    bottom: 20px;
+    left: calc(75% - 45px);
+    visibility: hidden;
+}
