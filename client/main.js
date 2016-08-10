@@ -10,6 +10,7 @@ var game = (function() {
     var players = [];
     var rooms;
     var images = [];
+    var events;
     
     var addressField = document.getElementById("address")
     var nameField = document.getElementById("name");
@@ -50,8 +51,11 @@ var game = (function() {
                 var room = rooms[player.roomId];
                 for (var i = 0; i < room.events.length; i++) {
                     var evt = room.events[i];
-                    if (clickPos.x > evt.x && clickPos.x < evt.x + evt.width && clickPos.y > evt.y && clickPos.y < evt.y + evt.height)
-                        alert("EVENT");
+                    if (clickPos.x > evt.x && clickPos.x < evt.x + evt.width && clickPos.y > evt.y && clickPos.y < evt.y + evt.height) {
+                        events.run(evt.name);
+                        break;     
+                    }
+                        
                 }
             });
             
@@ -64,8 +68,8 @@ var game = (function() {
         
         document.addEventListener("keydown", function (e) {
             if (e.keyCode == 13) {
-                //waiting ? nameCallback() : chatCallback();
-                if (!waiting) 
+                
+                if (!waiting)
                     chatCallback();
             }
         });
@@ -90,6 +94,7 @@ var game = (function() {
                 img.src = "images/" + rooms[i].image;
                 images[rooms[i].image] = img;
             }
+            events = new Events(playerData.events);
         });
         
         socket.on("createPlayer", function (playerData) {
@@ -189,7 +194,7 @@ var game = (function() {
     main();
     
     return {
-        createModalPanel = function (text) {
+        createModalPanel: function (text) {
             alert(text);
         }
     }

@@ -1,9 +1,9 @@
 function Events(eventList) {
-    this.events = eventList;
+    this.eventList = eventList;
 }
 
 Events.prototype.run = function (eventName) {
-    var event = eventList[eventName];;
+    var event = this.eventList[eventName];
     switch (event.action) {
         case "openModal":
             if (event.type == "text") {
