@@ -10,6 +10,7 @@ const Lobby = require("./Lobby")();
 var server = (function() {
     
     var rooms = JSON.parse(fs.readFileSync("rooms.json")).rooms;
+    var events = JSON.parse(fs.readFileSync("events.json")).events;
     
     var interfaces = os.networkInterfaces();
     var addresses = [];
@@ -23,7 +24,7 @@ var server = (function() {
     }
 
     var users = [];
-    var lobbies = [new Lobby(0)];
+    var lobbies = [new Lobby(0, "TestLobby"), new Lobby(2, "TestLobby2")];
 
     var app = express();
     app.use(express.static("client"));
@@ -39,16 +40,38 @@ var server = (function() {
         // Message listeners
         console.log("A new user connected to the server");
         
-        socket.on("register", function(name) {
+        socket.on("getLobbies", function () {
+            var data = [];
+            for (var i = 0; i < lobbies.length; i++) {
+                data.push({
+                    id: lobbies[i].id,
+                    name: lobbies[i].name,
+                    userAmount: lobbies[i].users.length
+                });
+            }
+            socket.emit("lobbies", data);
+        });
+        
+        socket.on("register", function(data) {
             var startRoomId = 0;
             var walkArea = rooms[startRoomId].walkArea;
+            var lobbyId = -1;
+            for (var i = 0; i < lobbies.length; i++) {
+                if (lobbies[i].id == data.lobby) {
+                    lobbyId = i;
+                }
+            }
+            
+            if (lobbyId == -1)
+                return;
+            
             var player = new Player({
-                    x: Math.random() * walkArea.width + walkArea.x,
-                    y: Math.random() * walkArea.height + walkArea.y
+                    x: 512,
+                    y: 383
                 },
-                name,
+                data.name,
                 socket.id,
-                0,
+                lobbyId,
                 startRoomId
             );
             
@@ -58,14 +81,17 @@ var server = (function() {
                 id: player.id, 
                 lobbyId: player.lobbyId, 
                 roomId: player.roomId,
-                rooms: rooms
+                rooms: rooms,
+                events: events
             };
 
             this.emit("init", playerData);
 
             for (var i = 0; i < users.length; i++) {
-                users[i].socket.emit("createPlayer", playerData);
-                this.emit("createPlayer", users[i].player);
+                if (users[i].player.lobbyId == lobbyId) {
+                    users[i].socket.emit("createPlayer", playerData);
+                    this.emit("createPlayer", users[i].player);
+                }
             }
 
             var user = {
@@ -74,8 +100,8 @@ var server = (function() {
             };
 
             users.push(user);
-            lobbies[0].addUser(user);
-            console.log("A new character was created with the name " + name);
+            lobbies[lobbyId].addUser(user);
+            console.log("A new character was created with the name " + data.name);
         });
 
         socket.on("click", function(newPos) {
@@ -114,6 +140,13 @@ var server = (function() {
                 playerId: user.player.id,
                 message: msg
             });
+        });
+        
+        socket.on("teleport", function (teleportData) {
+            var user = getUser(this.id);
+            user.player.roomId = teleportData.room;
+            user.player.pos = {x: teleportData.x, y: teleportData.y};
+            user.player.changed = true;
         });
     });
 

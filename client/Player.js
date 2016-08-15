@@ -7,6 +7,7 @@ function Player(pos, name, id, lobbyId, roomId) {
     this.messageCountdown = 0;
     this.state = 0;
     this.roomId = roomId;
+    this.self = false;
 }
 
 Player.prototype.update = function (playerData) {
@@ -42,8 +43,10 @@ Player.prototype.draw = function (ctx, time) {
                 y: this.pos.y - 13
             }
             
-            ctx.fillStyle = "hsl(0, 0%, 80%)";
-            ctx.fillRect(msgPos.x - 3, msgPos.y - 14 - (segments - i) * 16, msgSize + 6, 17);
+            var margin = 5;
+            
+            ctx.fillStyle = "hsl(0, 0%, 90%)";
+            ctx.fillRect(msgPos.x - margin, msgPos.y - 11 - margin - (segments - i) * 16, msgSize + margin * 2, 11 + margin * 2);
             
             ctx.fillStyle = "black";
             ctx.fillText(str, msgPos.x, msgPos.y - (segments - i) * 16);
@@ -52,6 +55,11 @@ Player.prototype.draw = function (ctx, time) {
     }
     
     ctx.font = "12px monospace";
+    if (this.self) {
+        ctx.fillStyle = "red";
+    } else {
+        ctx.fillStyle = "black";
+    }
     ctx.fillText(this.name, this.pos.x - ctx.measureText(this.name).width / 2, this.pos.y + 20);
     this.messageCountdown -= time;
 };

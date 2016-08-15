@@ -12,6 +12,7 @@ module.exports = function() {
             this.state = 0;
             this.roomId = roomId;
             this.changed = false;
+            this.changedRoom = false;
         }
         
         update(time, users, rooms) {
@@ -51,7 +52,17 @@ module.exports = function() {
                         if (this.AABB({x: this.pos.x, y: newY}, obst))
                             yMove = false;
                     }
-                    if (!xMove && !yMove || this.pos.x == newX && this.pos.y == newY)
+                    
+                    var tempX = this.pos.x; 
+                    var tempY = this.pos.y;
+                    if (xMove)
+                        tempX = newX;
+                    if (yMove)
+                        tempY = newY;
+                    
+                    var dist = Math.sqrt(Math.pow(this.pos.x - tempX, 2) + Math.pow(this.pos.y - tempY, 2));
+                    
+                    if (!xMove && !yMove || dist < 0.2)
                         this.target = null;
                     
                     if (xMove)
@@ -63,6 +74,7 @@ module.exports = function() {
                         var tele = teleports[i];
                         if (this.AABB(this.pos, tele)) {
                             this.roomId = tele.to.id;
+                            this.changedRoom = true;
                             this.pos = {
                                 x: tele.to.x, 
                                 y: tele.to.y
@@ -79,12 +91,21 @@ module.exports = function() {
                 this.state = 0;
             }
             
+            if (this.changedRoom) {
+                for (var i = 0; i < users.length; i++) {
+                    if (users[i].player.roomId == this.roomId)
+                        users[i].player.changed = true;
+                }
+            }
+            
             if (this.changed) {
                 for (var i = 0; i < users.length; i++) {
-                    users[i].socket.emit("update", {id: this.id, pos: this.pos, state: this.state, roomId: this.roomId});
+                    if (this.roomId == users[i].player.roomId || this.changedRoom)
+                        users[i].socket.emit("update", {id: this.id, pos: this.pos, state: this.state, roomId: this.roomId});
                 }
-                this.changed = false;
             }
+            this.changed = false;
+            this.changedRoom = false;
         }
         
         AABB(pos, rect) {

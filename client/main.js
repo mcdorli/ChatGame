@@ -12,9 +12,13 @@ var game = (function() {
     var images = [];
     var events;
     
+    var name;
+    
     var addressField = document.getElementById("address")
     var nameField = document.getElementById("name");
     var chat = document.getElementById("chat");
+    var curtain = document.getElementById("curtain");
+    var lobbies = document.getElementById("lobbies");
     
     function main() {
         c = document.getElementById("canvas");
@@ -22,8 +26,6 @@ var game = (function() {
         c.height = 768;
         ctx = c.getContext("2d");    
         ctx.font = "16px monospace";
-        
-        document.getElementById("name_send").removeAttribute("tabIndex");
         
         var chatCallback = function () {
             var msg = chat.value;
@@ -33,17 +35,47 @@ var game = (function() {
         
         var nameCallback = function () {
             socket = io(addressField.value);
+            game.socket = socket;
             
-            var name = nameField.value;
+            name = nameField.value;
             addressField.style.visibility = "hidden";
             nameField.style.visibility = "hidden";
             document.getElementById("name_send").style.visibility = "hidden";
+            
+            lobbies.style.visibility = "visible";
+            
+            socket.emit("getLobbies");
+            socket.on("lobbies", function (lobbyList) {
+                for (var i = 0; i < lobbyList.length; i++) {
+                    var lobby = document.createElement("div");
+                    lobby.className = "lobby";
+                    var name = document.createElement("h1");
+                    name.innerHTML = lobbyList[i].name;
+                    var userAmount = document.createElement("h3");
+                    userAmount.innerHTML = "Total users: " + lobbyList[i].userAmount;
+                    
+                    lobby.appendChild(name);
+                    lobby.appendChild(userAmount);
+                    
+                    lobby.id = lobbyList[i].id;
+                    lobby.onclick = lobbyCallback;
+                    
+                    lobbies.appendChild(lobby);
+                }
+            });
+        };
+        
+        var lobbyCallback = function () {
+            lobbies.style.visibility = "hidden";
             
             c.style.visibility = "visible";
             document.getElementById("chat_send").style.visibility = "visible";
             chat.style.visibility = "visible";
             
-            socket.emit("register", name);
+            socket.emit("register", {
+                name: name, 
+                lobby: this.id
+            });
             
             c.addEventListener("click", function (e) {
                 var clickPos = {x: e.clientX - this.offsetLeft, y: e.clientY - this.offsetTop};
@@ -61,7 +93,7 @@ var game = (function() {
             
             waiting = false;
             createCallbacks();
-        };
+        }
         
         document.getElementById("chat_send").onclick = chatCallback;
         document.getElementById("name_send").onclick = nameCallback;
@@ -88,6 +120,7 @@ var game = (function() {
     function createCallbacks() {
         socket.on("init", function (playerData) {
             player = new Player(playerData.pos, playerData.name, playerData.id, playerData.lobbyId, playerData.roomId);
+            player.self = true;
             rooms = playerData.rooms;
             for (var i = 0; i < rooms.length; i++) {
                 var img = new Image();
@@ -171,7 +204,7 @@ var game = (function() {
     
     function drawRoom(room) {
         ctx.drawImage(images[room.image], 0, 0, c.width, c.height);
-        ctx.strokeStyle = "green";
+        /*ctx.strokeStyle = "green";
         ctx.strokeRect(room.walkArea.x, room.walkArea.y, room.walkArea.width, room.walkArea.height);
         ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
         for (var i = 0; i < room.obstacles.length; i++) {
@@ -188,14 +221,38 @@ var game = (function() {
         for (var i = 0; i < room.events.length; i++) {
             var evt = room.events[i];
             ctx.fillRect(evt.x, evt.y, evt.width, evt.height);
-        }
+        }*/
     }
     
     main();
     
     return {
         createModalPanel: function (text) {
-            alert(text);
-        }
+            var div = document.createElement("div");
+            div.className = "modal-panel";
+            var close = document.createElement("span");
+            close.className = "close-icon";
+            close.innerHTML = "x";
+            
+            var h1 = document.createElement("h1");
+            h1.innerHTML = text.title;
+            var p = document.createElement("p");
+            p.className = "modal-content";
+            p.innerHTML = text.content;
+            
+            div.appendChild(close);
+            div.appendChild(h1);
+            div.appendChild(p);
+            curtain.style.visibility = "visible";
+            document.body.appendChild(div);
+            
+            close.panel = div;
+            
+            close.onclick = function () {
+                document.body.removeChild(this.panel);
+                curtain.style.visibility = "hidden";
+            };
+        },
+        socket: null
     }
 })();

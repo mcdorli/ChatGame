@@ -13,7 +13,7 @@ Events.prototype.run = function (eventName) {
             }
             break;
         case "teleport":
-                //TODO: Create teleport functionality for events
+                game.socket.emit("teleport", {room: event.room, x: event.x, y: event.y});
             break;
     }
 };

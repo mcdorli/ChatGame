@@ -49,3 +49,96 @@ canvas {
     left: calc(75% - 45px);
     visibility: hidden;
 }
+
+#curtain {
+    background-color: hsla(0, 0%, 10%, 0.5);
+    background-image: radial-gradient(circle, hsla(0, 0%, 10%, 0.7) 0%, hsla(0, 0%, 10%, 0.1) 100%);
+    
+    width: 100%;
+    height: 100%;
+    
+    position: absolute;
+    left: 0;
+    top: 0;
+    visibility: hidden;
+    z-index: 2;
+}
+
+.modal-panel {
+    background-color: white;
+    
+    width: 600px;
+    height: 500px;
+    
+    padding: 0;
+    
+    border-radius: 5px;
+    
+    text-align: center;
+    font-family: sans-serif;
+    
+    position: absolute;
+    left: calc(50% - 300px);
+    top: calc(50% - 250px);
+    
+    -webkit-box-shadow: 0 0 10px solid black;
+       -moz-box-shadow: 0 0 10px solid black;
+            box-shadow: 0 0 10px solid black;
+            
+    z-index: 3;
+}
+
+.modal-content {
+    text-align: justify;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.close-icon {
+    color: red;
+    font-family: sans-serif;
+    font-weight: 200;
+    font-size: 20px;
+    position: absolute;
+    left: calc(50% + 280px);
+    top: calc(50% - 240px);
+    z-index: 4;
+    cursor: pointer;
+}
+
+.close-icon:hover {
+    left: calc(50% + 278px);
+    top: calc(50% - 245px);
+    font-weight: 900;
+}
+
+#lobbies {
+    width: 80%;
+    padding: 1em;
+    position: absolute;
+    left: 10%;
+    top: 50px;
+    visibility: hidden;
+    box-sizing: border-box;
+}
+
+.lobby {
+    width: 100%;
+    height: 100px;
+    margin-top: 1em;
+    padding: 1em;
+    border-radius: 10px;
+    background-color: rgb(13, 85, 20);
+    color: white;
+    font-family: monospace;
+    box-sizing: border-box;
+}
+
+.lobby h1{
+     float: left;
+     display: inline;
+}
+
+.lobby h3 {
+    float: right;
+}
