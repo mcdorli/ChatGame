@@ -1,0 +1,45 @@
+body {
+    margin: 100px;
+    font-family: sans-serif;
+}
+
+#signup-form {
+    width: 400px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    border: 1px solid black;
+}
+
+#login-form {
+    width: 400px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    border: 1px solid black;
+}
+
+.description {
+    width: 400px;
+    margin-bottom: 0.5em;
+    text-align: left;
+    font-size: 20px;
+    display: inline-block;
+}
+
+.label {
+    width: 150px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+input[type=text], input[type=password], input[type=email] {
+    width: 15em;
+    height: 2em;
+    padding-left: 0.5em;
+    box-sizing: border-box;
+}
+
+input[type=button] {
+    width: 100px;
+    height: 30px;
+    margin-top: 0.5em;
+}
