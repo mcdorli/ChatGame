@@ -3,14 +3,48 @@ const socket = require("socket.io");
 const http = require("http");
 const os = require('os');
 const fs = require('fs');
+const readline = require('readline');
 
-const Player = require("./Player")();
-const Lobby = require("./Lobby")();
+const Player = require("./Player.js")();
+const Lobby = require("./Lobby.js")();
+const Database = require('./Database.js')();
+const LoginHandler = require('./LoginHandler.js')();
 
-var server = (function() {
+const roomsJSON = require('./rooms.json');
+const eventsJSON = require('./events');
+
+
+var server = (function serverFunction() {
+
+    const rooms = roomsJSON.rooms;
+    const events = eventsJSON.events;
     
-    var rooms = JSON.parse(fs.readFileSync("rooms.json")).rooms;
-    var events = JSON.parse(fs.readFileSync("events.json")).events;
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+    
+    rl.on("line", function (input) {
+        switch (input) {
+            case "stop":
+            case "break":
+            case "exit":
+                running = false;
+                break;
+            case "restart":
+            case "reload":
+                running = false;
+                restarting = true;
+                break;
+            case "help":
+                console.log("----------------------");
+                console.log("Commands:");
+                console.log("    - stop, break, exit --- Stop the server");
+                console.log("    - restart, reload   --- Restart the server");
+                console.log("    - help              --- Bring up this help message");
+                break;
+        }
+    });
     
     var interfaces = os.networkInterfaces();
     var addresses = [];
@@ -24,22 +58,32 @@ var server = (function() {
     }
 
     var users = [];
-    var lobbies = [new Lobby(0, "TestLobby"), new Lobby(2, "TestLobby2")];
+    var lobbies = [new Lobby(0, "TestLobby"), new Lobby(1, "TestLobby2")];
 
     var app = express();
     app.use(express.static("client"));
-    app.listen(80);
+    var expressServer = app.listen(80);
+    
+    var database = new Database({
+        host: "localhost",
+        user: "root",
+        password: "",
+        database: "chatgame"
+    });
+    var LoginHandler = new LoginHandler(app, database);
 
     var server = http.createServer(app);
     var io = socket(server);
-    server.listen(80, addresses[0], function() {
-        console.log("Started server on address " + server.address().address + ":"  + server.address().port);
+    var running = true;
+    var restarting = false;
+    server.listen(80, addresses[0], function () {
+        console.log("Started server on address " + server.address().address + ":" + server.address().port);
     });
 
-    io.on("connection", function(socket) {
+    io.on("connection", function (socket) {
         // Message listeners
         console.log("A new user connected to the server");
-        
+
         socket.on("getLobbies", function () {
             var data = [];
             for (var i = 0; i < lobbies.length; i++) {
@@ -51,8 +95,8 @@ var server = (function() {
             }
             socket.emit("lobbies", data);
         });
-        
-        socket.on("register", function(data) {
+
+        socket.on("register", function (data) {
             var startRoomId = 0;
             var walkArea = rooms[startRoomId].walkArea;
             var lobbyId = -1;
@@ -61,10 +105,10 @@ var server = (function() {
                     lobbyId = i;
                 }
             }
-            
+
             if (lobbyId == -1)
                 return;
-            
+
             var player = new Player({
                     x: 512,
                     y: 383
@@ -74,12 +118,12 @@ var server = (function() {
                 lobbyId,
                 startRoomId
             );
-            
+
             var playerData = {
-                pos: player.pos, 
-                name: player.name, 
-                id: player.id, 
-                lobbyId: player.lobbyId, 
+                pos: player.pos,
+                name: player.name,
+                id: player.id,
+                lobbyId: player.lobbyId,
                 roomId: player.roomId,
                 rooms: rooms,
                 events: events
@@ -104,9 +148,9 @@ var server = (function() {
             console.log("A new character was created with the name " + data.name);
         });
 
-        socket.on("click", function(newPos) {
+        socket.on("click", function (newPos) {
             var user = getUser(this.id);
-            
+
             if (user) {
                 var isEvent = false;
                 var room = rooms[user.player.roomId];
@@ -114,13 +158,13 @@ var server = (function() {
                     if (user.player.AABB(newPos, room.events[i]))
                         isEvent = true;
                 }
-                
+
                 if (!isEvent)
                     user.player.target = newPos;
             }
         });
 
-        socket.on("disconnect", function() {
+        socket.on("disconnect", function () {
             for (var i = 0; i < users.length; i++) {
                 if (users[i].socket.id == this.id) {
                     console.log(users[i].player.name + " disconnected from the server");
@@ -134,37 +178,63 @@ var server = (function() {
             }
         });
 
-        socket.on("chatMessage", function(msg) {
+        socket.on("chatMessage", function (msg) {
             var user = getUser(this.id);
             lobbies[user.player.lobbyId].broadCastMessage({
                 playerId: user.player.id,
                 message: msg
             });
         });
-        
+
         socket.on("teleport", function (teleportData) {
             var user = getUser(this.id);
             user.player.roomId = teleportData.room;
-            user.player.pos = {x: teleportData.x, y: teleportData.y};
+            user.player.pos = {
+                x: teleportData.x,
+                y: teleportData.y
+            };
             user.player.changed = true;
         });
     });
-
-    function loop() {
-        for (var i = 0; i < lobbies.length; i++) {
-            lobbies[i].updateLobby(20, rooms);
-        }
-        var str = "";
-        for (var i = 0; i < users.length; i++) {
-            str += " " + users[i].socket.id;
-        }
-        setTimeout(loop, 20);
-    }
 
     function getUser(socketId) {
         for (var i = 0; i < users.length; i++) {
             if (users[i].socket.id == socketId)
                 return users[i];
+        }
+    }
+
+    function loop() {
+        for (var i = 0; i < lobbies.length; i++) {
+            lobbies[i].updateLobby(20, rooms);
+        }
+        
+        if (running) {
+            setTimeout(loop, 20);
+        } else {
+            if (!restarting) {
+                console.log("Stopping the server!");
+            } else {
+                console.log("Restarting the server!");
+            }
+            cleanup();
+        }
+    }
+
+    function cleanup() {
+        console.log("Disconnecting users!");
+        for (var i = 0; i < users.length; i++) {
+            users[i].socket.emit("stopping", restarting ? "restart" : "stop");
+        }
+        database.close();
+        rl.close();
+        server.close();
+        io.close();
+        expressServer.close();
+        if (!restarting) {
+            process.exit();
+        } else {
+            setTimeout(serverFunction, 20);
         }
     }
 
