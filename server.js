@@ -37,11 +37,19 @@ var server = (function serverFunction() {
                 restarting = true;
                 break;
             case "help":
+                var names = [];
+                for (var i = 0; i < users.length; i++) {
+                    names.push(users[i].player.name);
+                }
+            
                 console.log("----------------------");
                 console.log("Commands:");
-                console.log("    - stop, break, exit --- Stop the server");
-                console.log("    - restart, reload   --- Restart the server");
-                console.log("    - help              --- Bring up this help message");
+                console.log("  - stop, break, exit --- Stop the server");
+                console.log("  - restart, reload   --- Restart the server");
+                console.log("  - help              --- Bring up this help message");
+                console.log("");
+                console.log("Current user count: " + users.length);
+                console.log(names.join());
                 break;
         }
     });
@@ -70,7 +78,8 @@ var server = (function serverFunction() {
         password: "",
         database: "chatgame"
     });
-    var LoginHandler = new LoginHandler(app, database);
+    
+    var loginHandler = new LoginHandler(app, database);
 
     var server = http.createServer(app);
     var io = socket(server);
@@ -145,7 +154,6 @@ var server = (function serverFunction() {
 
             users.push(user);
             lobbies[lobbyId].addUser(user);
-            console.log("A new character was created with the name " + data.name);
         });
 
         socket.on("click", function (newPos) {
@@ -234,7 +242,7 @@ var server = (function serverFunction() {
         if (!restarting) {
             process.exit();
         } else {
-            setTimeout(serverFunction, 20);
+            setTimeout(serverFunction, 30);
         }
     }
 

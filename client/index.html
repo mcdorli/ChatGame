@@ -12,13 +12,38 @@
         
         <script type="text/javascript" src="login.js" defer="defer"></script>
          
+        <script>
+            window.onload = function () {
+                var loginInfo = document.getElementById("login-info");
+                if (login.loginData) {
+                    var name = document.createElement("span");
+                    name.innerHTML = login.loginData.username;
+                    var signout = document.createElement("a");
+                    signout.innerHTML = "Sign out";
+                    signout.href = "";
+                    signout.onclick = login.signout;
+                    loginInfo.appendChild(name);
+                    loginInfo.appendChild(document.createElement("br"));
+                    loginInfo.appendChild(document.createElement("br"));
+                    loginInfo.appendChild(signout);
+                } else {
+                    var signin = document.createElement("a");
+                    signin.innerHTML = "Sign in/Log in";
+                    signin.href = "login.html";
+                    loginInfo.appendChild(signin);
+                }
+            };
+        </script>
+         
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
     <body>
         <input type="text" class="input_field" id="address" autocomplete="on" placeholder="Enter the server address (example.com:9999 / 192.168.x.xxx:yyyy)" />
-        <input type="text" class="input_field" id="name" placeholder="Enter your name..." maxlength="25" />
         <input type="button" class="input_button" id="name_send" value="Send" />
         <div id="lobbies">
+            
+        </div>
+        <div id="login-info">
             
         </div>
         <center>

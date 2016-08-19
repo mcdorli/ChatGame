@@ -14,8 +14,7 @@ var game = (function () {
 
     var name;
 
-    var addressField = document.getElementById("address")
-    var nameField = document.getElementById("name");
+    var addressField = document.getElementById("address");
     var chat = document.getElementById("chat");
     var curtain = document.getElementById("curtain");
     var lobbies = document.getElementById("lobbies");
@@ -24,6 +23,12 @@ var game = (function () {
         c = document.getElementById("canvas");
         c.width = 1024;
         c.height = 768;
+        c.style.height = Math.min(innerHeight - 30, 768) + "px";
+        
+        document.body.onresize = function () {
+            c.style.height = Math.max(innerHeight - c.offsetTop * 2, 768) + "px";
+        };
+        
         ctx = c.getContext("2d");
         ctx.font = "16px monospace";
 
@@ -36,10 +41,14 @@ var game = (function () {
         var nameCallback = function () {
             socket = io(addressField.value);
             game.socket = socket;
-
-            name = nameField.value;
+            
+            if (!login.loginData) {
+                alert("You need to be logged in to enter the game!");
+                return;
+            }
+            
+            name = login.loginData.username;
             addressField.style.visibility = "hidden";
-            nameField.style.visibility = "hidden";
             document.getElementById("name_send").style.visibility = "hidden";
 
             lobbies.style.visibility = "visible";
@@ -79,8 +88,8 @@ var game = (function () {
 
             c.addEventListener("click", function (e) {
                 var clickPos = {
-                    x: e.clientX - this.offsetLeft,
-                    y: e.clientY - this.offsetTop
+                    x: (e.clientX - this.offsetLeft + scrollX) / this.clientWidth * this.width,
+                    y: (e.clientY - this.offsetTop + scrollY) / this.clientHeight * this.height
                 };
                 socket.emit("click", clickPos);
                 var room = rooms[player.roomId];
@@ -175,7 +184,8 @@ var game = (function () {
                 }
             }
             if (p) {
-                p.message = data.message.replace(/\s{2,}/g, " ");
+                var msg = data.message.replace(/\s{2,}/g, " ")
+                p.message = msg;
                 p.messageCountdown = 6000;
             }
         });
