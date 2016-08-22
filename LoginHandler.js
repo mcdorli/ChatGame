@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 module.exports = function () {
     
     class LoginHandler {
@@ -20,7 +22,7 @@ module.exports = function () {
             app.get("/signup", function (req, res) {
                 var user = {
                     username: req.query.username,
-                    password: req.query.password,
+                    password: crypto.createHash("sha256").update(req.query.password).digest("base64"),
                     email: req.query.email,
                     hash: Date.now()
                 }
@@ -38,8 +40,9 @@ module.exports = function () {
             app.get("/login", function (req, res) {
                 database.query("SELECT * FROM users WHERE username='" + req.query.username + "'", [], function (rows) {
                     var found = false;
+                    var pass = crypto.createHash("sha256").update(req.query.password).digest("base64")
                     for (var i = 0; i < rows.length; i++) {
-                        if (rows[i].username == req.query.username && rows[i].password == req.query.password) {
+                        if (rows[i].username == req.query.username && rows[i].password == pass) {
                             found = true;
                             res.send(JSON.stringify({
                                 email: rows[i].email,
